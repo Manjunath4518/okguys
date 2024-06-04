@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnival of Chemistry 2.0</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #e0f7fa;
+            background-image: ;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .grid-item {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffcc80;
+            border: 2px solid #fb8c00;
+            border-radius: 10px;
+            font-size: 24px;
+            color: #bf360c;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .grid-item:hover {
+            transform: scale(1.1);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: #ffffff;
+            background-color: #00796b;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #004d40;
+        }
+
+        h1 {
+            color: #00796b;
+            margin-bottom: 20px;
+            font-size: 36px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Carnival of Chemistry 2.0</h1>
+        <div class="grid">
+            <div class="grid-item" id="cell-1"></div>
+            <div class="grid-item" id="cell-2"></div>
+            <div class="grid-item" id="cell-3"></div>
+            <div class="grid-item" id="cell-4"></div>
+            <div class="grid-item" id="cell-5"></div>
+            <div class="grid-item" id="cell-6"></div>
+            <div class="grid-item" id="cell-7"></div>
+            <div class="grid-item" id="cell-8"></div>
+            <div class="grid-item" id="cell-9"></div>
+            <div class="grid-item" id="cell-10"></div>
+            <div class="grid-item" id="cell-11"></div>
+            <div class="grid-item" id="cell-12"></div>
+            <div class="grid-item" id="cell-13"></div>
+            <div class="grid-item" id="cell-14"></div>
+            <div class="grid-item" id="cell-15"></div>
+            <div class="grid-item" id="cell-16"></div>
+        </div>
+        <div class="buttons">
+            <button onclick="generateChemicals()">Generate</button>
+            <button onclick="showMatchingCells()">Find Match</button>
+            <button onclick="showPrevious()">Previous</button>
+            <button onclick="clearGrid()">Clear</button>
+        </div>
+    </div>
+    <script>
+        let previousChemicals = [];
+        const chemicals = [
+            "H2SO4", "KMnO4", "H2O", "NaCl", "C2H5OH", "NH3", "CO2", "O2",
+            "N2", "HCl", "NaOH", "CH4", "C6H12O6", "Fe2O3", "CaCO3", "HNO3", "C6H6",
+            "C2H4", "C3H8", "C4H10", "C6H5OH", "C2H2", "C2H6", "C3H6", "C4H8", "C5H10",
+            "C7H8", "C8H10", "C9H12", "H2O2", "N2O", "CCl4", "NH4Cl", "K2SO4", "H3PO4",
+            "HBr", "H2S", "C2H5Cl", "C6H5CH3", "C6H4Cl2", "C8H8", "CH3OH", "C3H4", "C4H4", "C5H6"
+        ];
+
+        function generateChemicals() {
+            const newChemicals = [];
+            const shuffledChemicals = chemicals.sort(() => 0.5 - Math.random());
+            const usedChemicals = new Set();
+
+            // Ensure exactly two cells have the same element
+            const randomChemical = shuffledChemicals[0];
+            const randomIndex1 = Math.floor(Math.random() * 16);
+            let randomIndex2;
+            do {
+                randomIndex2 = Math.floor(Math.random() * 16);
+            } while (randomIndex2 === randomIndex1 || randomIndex2 % 4 === randomIndex1 % 4 || Math.floor(randomIndex2 / 4) === Math.floor(randomIndex1 / 4));
+
+            usedChemicals.add(randomChemical);
+
+            for (let i = 0, j = 0; i < 16; i++) {
+                if (i === randomIndex1 || i === randomIndex2) {
+                    newChemicals.push(randomChemical);
+                } else {
+                    while (usedChemicals.has(shuffledChemicals[j]) || newChemicals.some((c, idx) => c === shuffledChemicals[j] && (i % 4 === idx % 4 || Math.floor(i / 4) === Math.floor(idx / 4)))) {
+                        j++;
+                    }
+                    newChemicals.push(shuffledChemicals[j]);
+                    usedChemicals.add(shuffledChemicals[j]);
+                }
+                document.getElementById(`cell-${i + 1}`).textContent = newChemicals[i];
+            }
+            previousChemicals = newChemicals;
+        }
+
+        function showMatchingCells() {
+            if (previousChemicals.length === 0) {
+                alert('No chemicals generated yet');
+                return;
+            }
+
+            const chemicalCounts = previousChemicals.reduce((acc, chemical, index) => {
+                if (!acc[chemical]) {
+                    acc[chemical] = [];
+                }
+                acc[chemical].push(index + 1);
+                return acc;
+            }, {});
+
+            const matchingChemical = Object.keys(chemicalCounts).find(chemical => chemicalCounts[chemical].length === 2);
+            if (matchingChemical) {
+                alert(`The matching chemical is ${matchingChemical} at positions ${chemicalCounts[matchingChemical].join(' and ')}`);
+            } else {
+                alert('No matching chemicals found');
+            }
+        }
+
+        function showPrevious() {
+            if (previousChemicals.length === 0) {
+                alert('No previous chemicals available');
+                return;
+            }
+            for (let i = 1; i <= 16; i++) {
+                document.getElementById(`cell-${i}`).textContent = previousChemicals[i - 1];
+            }
+        }
+
+        function clearGrid() {
+            for (let i = 1; i <= 16; i++) {
+                document.getElementById(`cell-${i}`).textContent = '';
+            }
+        }
+    </script>
+</body>
+</html>
